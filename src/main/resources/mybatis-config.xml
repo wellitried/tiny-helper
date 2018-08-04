@@ -16,5 +16,7 @@
     </environments>
     <mappers>
         <mapper class="dao.mappers.EmailOptionMapper"/>
+        <mapper class="dao.mappers.EventMapper"/>
+        <mapper class="dao.mappers.MessageMapper"/>
     </mappers>
 </configuration>

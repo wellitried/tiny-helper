@@ -1,7 +1,7 @@
 package email;
 
+import dao.repositories.EmailOptionRepository;
 import email.emailoption.EmailOption;
-import email.emailoption.EmailOptionRepository;
 import org.simplejavamail.MailException;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.email.EmailBuilder;
@@ -40,19 +40,24 @@ public class MailService {
         fromName = defaultOption.getFromName();
     }
 
+
     public void sendMail(String recipient, String subject, String message) {
 
-        final Email email = EmailBuilder.startingBlank()
-                .from(fromName, fromAddress)
-                .to(recipient)
-                .withHTMLText(message)
-                .withSubject(subject)
-                .buildEmail();
+        final Email email = buildEmail(recipient, subject, message);
 
         try {
             mailer.sendMail(email);
         } catch (MailException e) {
             e.printStackTrace();
         }
+    }
+
+    private Email buildEmail(String recipient, String subject, String message) {
+        return EmailBuilder.startingBlank()
+                .from(fromName, fromAddress)
+                .to(recipient)
+                .withHTMLText(message)
+                .withSubject(subject)
+                .buildEmail();
     }
 }

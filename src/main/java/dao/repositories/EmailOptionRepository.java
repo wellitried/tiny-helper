@@ -1,7 +1,8 @@
-package email.emailoption;
+package dao.repositories;
 
 import dao.SessionService;
 import dao.mappers.EmailOptionMapper;
+import email.emailoption.EmailOption;
 import org.apache.ibatis.session.SqlSession;
 
 import javax.inject.Inject;
@@ -18,6 +19,7 @@ public class EmailOptionRepository {
         this.sessionService = sessionService;
     }
 
+
     public EmailOption getDefaultOption() {
 
         EmailOption emailOption = null;
@@ -25,7 +27,7 @@ public class EmailOptionRepository {
         try (SqlSession session = sessionService.getSession()) {
             EmailOptionMapper mapper = session.getMapper(EmailOptionMapper.class);
 
-            emailOption = mapper.selectOptionsByType(EmailOptionType.DEFAULT);
+            emailOption = mapper.selectByType(EmailOption.EmailOptionType.DEFAULT);
         }
 
         return emailOption;
