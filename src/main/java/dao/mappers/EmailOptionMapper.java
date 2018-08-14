@@ -1,6 +1,7 @@
 package dao.mappers;
 
 import email.emailoption.EmailOption;
+import email.emailoption.EmailOptionType;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Results;
@@ -20,6 +21,6 @@ public interface EmailOptionMapper {
     })
 
     @Select("SELECT * FROM email_option WHERE type = #{type}")
-    EmailOption selectByType(@Param("type") EmailOption.EmailOptionType type);
+    EmailOption selectByType(@Param("type") EmailOptionType type);
 
 }

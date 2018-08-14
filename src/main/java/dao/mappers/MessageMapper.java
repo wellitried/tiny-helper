@@ -1,12 +1,7 @@
 package dao.mappers;
 
-import event.Event;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
+import message.Message;
+import org.apache.ibatis.annotations.*;
 
 public interface MessageMapper {
 
@@ -16,6 +11,8 @@ public interface MessageMapper {
     })
 
     @Select("SELECT * FROM message WHERE id = #{id}")
-    List<Event> selectById(@Param("id") Long id);
+    Message selectById(@Param("id") Long id);
 
+    @Update("UPDATE message SET sent = TRUE WHERE id = #{id}")
+    void setSentAsTrue(Message message);
 }

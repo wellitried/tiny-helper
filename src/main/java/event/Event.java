@@ -6,19 +6,11 @@ import java.util.Date;
 
 public class Event {
 
-    public static final Integer INTERVAL_LENGTH = 5;
-
-
     private Long id;
-
     private Date date;
-
     private boolean emailNotification;
-
     private boolean pushNotification;
-
     private Message message;
-
 
     @Override
     public String toString() {
@@ -30,7 +22,6 @@ public class Event {
                 ", message=" + message +
                 '}';
     }
-
 
     public Long getId() {
         return id;

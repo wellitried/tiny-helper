@@ -2,23 +2,14 @@ package email.emailoption;
 
 public class EmailOption {
 
-
     private Long id;
-
     private EmailOptionType type;
-
     private String fromAddress;
-
     private String fromName;
-
     private String host;
-
     private Integer port;
-
     private String username;
-
     private String password;
-
 
     public Long getId() {
         return id;
@@ -82,11 +73,6 @@ public class EmailOption {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-
-    public enum EmailOptionType {
-        DEFAULT
     }
 
 }
