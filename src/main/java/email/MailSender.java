@@ -6,7 +6,6 @@ import email.emailoption.EmailOption;
 import message.Message;
 import org.simplejavamail.MailException;
 import org.simplejavamail.email.Email;
-import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.simplejavamail.mailer.config.TransportStrategy;
@@ -20,37 +19,23 @@ import javax.inject.Singleton;
 public class MailSender {
 
     private final Logger logger = LoggerFactory.getLogger(MailSender.class);
-    private final Mailer mailer;
     private final MessageRepository messageRepository;
-    private final String fromAddress;
-    private final String fromName;
+    private final EmailOptionRepository emailOptionRepository;
+    private final EmailBuilder emailBuilder;
 
     @Inject
-    MailSender(EmailOptionRepository emailOptionRepository, MessageRepository messageRepository) {
-
+    MailSender(EmailOptionRepository emailOptionRepository, MessageRepository messageRepository, EmailBuilder emailBuilder) {
         this.messageRepository = messageRepository;
-
-        EmailOption defaultOption = emailOptionRepository.getDefaultOption();
-
-        mailer = MailerBuilder
-                .withSMTPServer(
-                        defaultOption.getHost(),
-                        defaultOption.getPort(),
-                        defaultOption.getUsername(),
-                        defaultOption.getPassword())
-                .withTransportStrategy(TransportStrategy.SMTP_TLS)
-                .buildMailer();
-
-        fromAddress = defaultOption.getFromAddress();
-        fromName = defaultOption.getFromName();
+        this.emailOptionRepository = emailOptionRepository;
+        this.emailBuilder = emailBuilder;
     }
 
     public void sendMessage(Message message) {
 
-        Email email = buildEmail(message.getRecipient(), message.getSubject(), message.getText());
+        Email email = emailBuilder.buildEmail(message.getRecipient(), message.getSubject(), message.getText());
 
         try {
-            mailer.sendMail(email);
+            getMailer().sendMail(email);
             messageRepository.markMessageAsSent(message);
 
             logger.info("Email was sent: " + email);
@@ -59,13 +44,18 @@ public class MailSender {
         }
     }
 
-    private Email buildEmail(String recipient, String subject, String message) {
+    private Mailer getMailer() {
 
-        return EmailBuilder.startingBlank()
-                .from(fromName, fromAddress)
-                .to(recipient)
-                .withHTMLText(message)
-                .withSubject(subject)
-                .buildEmail();
+        EmailOption defaultOption = emailOptionRepository.getDefaultOption();
+
+        return MailerBuilder
+                .withSMTPServer(
+                        defaultOption.getHost(),
+                        defaultOption.getPort(),
+                        defaultOption.getUsername(),
+                        defaultOption.getPassword())
+                .withTransportStrategy(TransportStrategy.SMTP_TLS)
+                .buildMailer();
     }
+
 }

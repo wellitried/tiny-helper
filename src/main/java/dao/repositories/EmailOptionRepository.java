@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 public class EmailOptionRepository {
 
     private final SessionService sessionService;
+    private EmailOption defaultOption;
 
     @Inject
     public EmailOptionRepository(SessionService sessionService) {
@@ -20,12 +21,14 @@ public class EmailOptionRepository {
     }
 
     public EmailOption getDefaultOption() {
-        try (SqlSession session = sessionService.getSession()) {
-            EmailOptionMapper mapper = session.getMapper(EmailOptionMapper.class);
+        if (defaultOption == null) {
+            try (SqlSession session = sessionService.getSession()) {
+                EmailOptionMapper mapper = session.getMapper(EmailOptionMapper.class);
 
-            EmailOption emailOption = mapper.selectByType(EmailOptionType.DEFAULT);
-
-            return emailOption;
+                defaultOption = mapper.selectByType(EmailOptionType.DEFAULT);
+            }
         }
+
+        return defaultOption;
     }
 }
