@@ -15,11 +15,8 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class EventRepository {
 
-    private final SessionService sessionService;
-
     @Inject
-    public EventRepository(SessionService sessionService) {
-        this.sessionService = sessionService;
+    public EventRepository() {
     }
 
     public List<Event> getEventsToNotify() {
@@ -31,15 +28,17 @@ public class EventRepository {
     }
 
     private List<Event> getActualEvents() {
-        try (SqlSession session = sessionService.getSession()) {
+        SqlSession session = SessionService.getSession();
+        EventMapper mapper = session.getMapper(EventMapper.class);
 
-            EventMapper mapper = session.getMapper(EventMapper.class);
+        Date from = getCurrentDateMinusSchedulerPeriod();
+        Date to = new Date();
 
-            Date from = getCurrentDateMinusSchedulerPeriod();
-            Date to = new Date();
+        List<Event> events = mapper.selectInInterval(from, to);
 
-            return mapper.selectInInterval(from, to);
-        }
+        session.close();
+
+        return events;
     }
 
     private void removeEventsWithSentMessages(List<Event> events) {

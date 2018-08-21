@@ -1,6 +1,5 @@
 package email;
 
-import base.TestBase;
 import dao.SessionService;
 import dao.mappers.EmailOptionMapper;
 import dao.repositories.EmailOptionRepository;
@@ -8,16 +7,12 @@ import dao.repositories.MessageRepository;
 import email.emailoption.EmailOption;
 import email.emailoption.EmailOptionType;
 import message.Message;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
-
-import javax.inject.Inject;
 
 import static org.mockito.Mockito.*;
 
-public class MailSenderTest extends TestBase {
-
-    @Inject
-    private SessionService sessionService;
+public class MailSenderTest {
 
     @Test
     public void sendMessageTest() {
@@ -46,12 +41,18 @@ public class MailSenderTest extends TestBase {
 
     private EmailOptionRepository getEmailOptionRepositoryMock() {
         EmailOptionRepository emailOptionRepository = mock(EmailOptionRepository.class);
-        when(emailOptionRepository.getDefaultOption()).thenReturn(getDefaultEmailOption());
+
+        EmailOption defaultEmailOption = getDefaultEmailOption();
+        when(emailOptionRepository.getDefaultOption()).thenReturn(defaultEmailOption);
 
         return emailOptionRepository;
     }
 
     private EmailOption getDefaultEmailOption() {
-        return sessionService.getSession().getMapper(EmailOptionMapper.class).selectByType(EmailOptionType.DEFAULT);
+        SqlSession session = SessionService.getSession();
+        EmailOption emailOption = session.getMapper(EmailOptionMapper.class).selectByType(EmailOptionType.DEFAULT);
+        session.close();
+
+        return emailOption;
     }
 }

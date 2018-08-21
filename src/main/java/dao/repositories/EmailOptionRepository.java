@@ -12,21 +12,20 @@ import javax.inject.Singleton;
 @Singleton
 public class EmailOptionRepository {
 
-    private final SessionService sessionService;
     private EmailOption defaultOption;
 
     @Inject
-    public EmailOptionRepository(SessionService sessionService) {
-        this.sessionService = sessionService;
+    public EmailOptionRepository() {
     }
 
     public EmailOption getDefaultOption() {
         if (defaultOption == null) {
-            try (SqlSession session = sessionService.getSession()) {
-                EmailOptionMapper mapper = session.getMapper(EmailOptionMapper.class);
+            SqlSession session = SessionService.getSession();
+            EmailOptionMapper mapper = session.getMapper(EmailOptionMapper.class);
 
-                defaultOption = mapper.selectByType(EmailOptionType.DEFAULT);
-            }
+            defaultOption = mapper.selectByType(EmailOptionType.DEFAULT);
+
+            session.close();
         }
 
         return defaultOption;

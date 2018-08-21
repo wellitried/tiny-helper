@@ -14,12 +14,12 @@ import java.io.InputStream;
 @Singleton
 public class SessionService {
 
-    private final String MYBATIS_CONFIG = "mybatis-config.xml";
-    private final Logger logger = LoggerFactory.getLogger(SessionService.class);
+    private static final String MYBATIS_CONFIG = "mybatis-config.xml";
+    private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
-    private SqlSessionFactory sessionFactory;
+    private static SqlSessionFactory sessionFactory;
 
-    public SessionService() {
+    static {
 
         try (InputStream inputStream = Resources.getResourceAsStream(MYBATIS_CONFIG)) {
             sessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
@@ -28,7 +28,12 @@ public class SessionService {
         }
     }
 
-    public SqlSession getSession() {
+    private SessionService() throws IllegalAccessException {
+        throw new IllegalAccessException();
+    }
+
+    public static SqlSession getSession() {
         return sessionFactory.openSession();
     }
+
 }

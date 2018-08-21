@@ -1,5 +1,6 @@
 package email.emailoption;
 
 public enum EmailOptionType {
-    DEFAULT
+    DEFAULT,
+    ADDITIONAL
 }

@@ -1,5 +1,6 @@
 package dao.repositories;
 
+import com.google.common.base.Preconditions;
 import dao.SessionService;
 import dao.mappers.MessageMapper;
 import message.Message;
@@ -11,20 +12,23 @@ import javax.inject.Singleton;
 @Singleton
 public class MessageRepository {
 
-    private final SessionService sessionService;
-
     @Inject
-    public MessageRepository(SessionService sessionService) {
-        this.sessionService = sessionService;
+    public MessageRepository() {
+
     }
 
     public void markMessageAsSent(Message message) {
-        try (SqlSession session = sessionService.getSession()) {
-            MessageMapper mapper = session.getMapper(MessageMapper.class);
+        Preconditions.checkNotNull(message);
 
-            mapper.setSentAsTrue(message);
-            session.commit();
-        }
+        message.setSent(true);
+
+        SqlSession session = SessionService.getSession();
+        MessageMapper mapper = session.getMapper(MessageMapper.class);
+
+        mapper.update(message);
+
+        session.commit();
+        session.close();
     }
 
 }
