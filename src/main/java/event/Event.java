@@ -1,5 +1,6 @@
 package event;
 
+import com.google.common.base.Objects;
 import message.Message;
 
 import java.util.Date;
@@ -21,6 +22,19 @@ public class Event {
                 ", pushNotification=" + pushNotification +
                 ", message=" + message +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Event event = (Event) o;
+        return Objects.equal(id, event.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     public Long getId() {

@@ -9,13 +9,13 @@ import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
-public class SendTask implements Runnable {
+public class EmailNotificationsSendingTask implements Runnable {
 
     private final EventRepository eventRepository;
     private final MailSender mailSender;
 
     @Inject
-    SendTask(EventRepository eventRepository, MailSender mailSender) {
+    EmailNotificationsSendingTask(EventRepository eventRepository, MailSender mailSender) {
         this.eventRepository = eventRepository;
         this.mailSender = mailSender;
     }
@@ -24,6 +24,8 @@ public class SendTask implements Runnable {
     public void run() {
         List<Event> actualEvents = eventRepository.getEventsToNotify();
 
-        actualEvents.forEach(e -> mailSender.sendMessage(e.getMessage()));
+        actualEvents.stream()
+                .filter(Event::isEmailNotification)
+                .forEach(e -> mailSender.sendMessage(e.getMessage()));
     }
 }

@@ -6,6 +6,7 @@ import message.Message;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.session.SqlSession;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -66,6 +67,10 @@ public interface EventMapper {
         create(event);
     }
 
+    default void createWithMessage(Event... events) {
+        Arrays.stream(events).forEach(this::createWithMessage);
+    }
+
     default void deleteWithMessage(Event event) {
         if (event.getMessage() != null) {
             SqlSession session = SessionService.getSession();
@@ -74,6 +79,10 @@ public interface EventMapper {
             session.close();
         }
         delete(event.getId());
+    }
+
+    default void deleteWithMessage(Event... events) {
+        Arrays.stream(events).forEach(this::deleteWithMessage);
     }
 
 }

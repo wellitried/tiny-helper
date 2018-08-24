@@ -1,18 +1,14 @@
 package email;
 
-import dao.SessionService;
-import dao.mappers.EmailOptionMapper;
 import dao.repositories.EmailOptionRepository;
 import dao.repositories.MessageRepository;
-import email.emailoption.EmailOption;
-import email.emailoption.EmailOptionType;
 import message.Message;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
+import org.simplejavamail.email.Email;
 
 import static org.mockito.Mockito.*;
 
-public class MailSenderTest {
+public class MailSenderTest extends EmailTestBase {
 
     @Test
     public void sendMessageTest() {
@@ -20,10 +16,12 @@ public class MailSenderTest {
         EmailOptionRepository emailOptionRepository = getEmailOptionRepositoryMock();
         Message message = getMessageMock();
         MessageRepository messageRepository = getMessageRepositoryMock();
+        EmailBuilder emailBuilder = getEmailBuilderMock(message);
 
-        MailSender mailSender = new MailSender(emailOptionRepository, messageRepository, new EmailBuilder(emailOptionRepository));
+        MailSender mailSender = new MailSender(emailOptionRepository, messageRepository, emailBuilder);
 
         mailSender.sendMessage(message);
+        verify(emailBuilder).buildEmail(message.getRecipient(), message.getSubject(), message.getText());
         verify(messageRepository).markMessageAsSent(message);
     }
 
@@ -31,28 +29,18 @@ public class MailSenderTest {
         return mock(MessageRepository.class);
     }
 
-    private Message getMessageMock() {
-        Message message = mock(Message.class);
-        when(message.getRecipient()).thenReturn("test@test.com");
-        when(message.getText()).thenReturn("test");
+    private EmailBuilder getEmailBuilderMock(Message message) {
+        EmailBuilder emailBuilder = mock(EmailBuilder.class);
+        Email actualEmail = getActualEmail(message);
+        when(emailBuilder.buildEmail(message.getRecipient(), message.getSubject(), message.getText())).thenReturn(actualEmail);
 
-        return message;
+        return emailBuilder;
     }
 
-    private EmailOptionRepository getEmailOptionRepositoryMock() {
-        EmailOptionRepository emailOptionRepository = mock(EmailOptionRepository.class);
+    private Email getActualEmail(Message message) {
+        EmailOptionRepository emailOptionRepository = getEmailOptionRepositoryMock();
+        EmailBuilder emailBuilder = new EmailBuilder(emailOptionRepository);
 
-        EmailOption defaultEmailOption = getDefaultEmailOption();
-        when(emailOptionRepository.getDefaultOption()).thenReturn(defaultEmailOption);
-
-        return emailOptionRepository;
-    }
-
-    private EmailOption getDefaultEmailOption() {
-        SqlSession session = SessionService.getSession();
-        EmailOption emailOption = session.getMapper(EmailOptionMapper.class).selectByType(EmailOptionType.DEFAULT);
-        session.close();
-
-        return emailOption;
+        return emailBuilder.buildEmail(message.getRecipient(), message.getSubject(), message.getText());
     }
 }

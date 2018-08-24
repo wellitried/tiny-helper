@@ -5,18 +5,22 @@ import dao.mappers.EventMapper;
 import event.Event;
 import org.apache.ibatis.session.SqlSession;
 import scheduler.Scheduler;
+import utils.ArithmeticOperation;
+import utils.TimeUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class EventRepository {
 
+    private final TimeUtils timeUtils;
+
     @Inject
-    public EventRepository() {
+    public EventRepository(TimeUtils timeUtils) {
+        this.timeUtils = timeUtils;
     }
 
     public List<Event> getEventsToNotify() {
@@ -31,7 +35,7 @@ public class EventRepository {
         SqlSession session = SessionService.getSession();
         EventMapper mapper = session.getMapper(EventMapper.class);
 
-        Date from = getCurrentDateMinusSchedulerPeriod();
+        Date from = timeUtils.getModifiedCurrentDate(ArithmeticOperation.SUBTRACT, Scheduler.PERIOD_IN_MINUTES);
         Date to = new Date();
 
         List<Event> events = mapper.selectInInterval(from, to);
@@ -43,9 +47,5 @@ public class EventRepository {
 
     private void removeEventsWithSentMessages(List<Event> events) {
         events.removeIf(e -> e.getMessage() != null && e.getMessage().getSent());
-    }
-
-    private Date getCurrentDateMinusSchedulerPeriod() {
-        return new Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(Scheduler.PERIOD_IN_MINUTES));
     }
 }

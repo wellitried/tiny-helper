@@ -11,10 +11,10 @@ public class Scheduler {
 
     public static final Integer PERIOD_IN_MINUTES = 1;
 
-    private final SendTask task;
+    private final EmailNotificationsSendingTask task;
 
     @Inject
-    Scheduler(SendTask task) {
+    Scheduler(EmailNotificationsSendingTask task) {
         this.task = task;
     }
 
